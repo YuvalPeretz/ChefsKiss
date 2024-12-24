@@ -4,6 +4,8 @@ export type Ingredient = {
   name: string;
   amount: number;
   unit: keyof typeof unitOptions;
+  optional?: boolean;
+  notes?: string;
 };
 
 export type RecipeStep = {

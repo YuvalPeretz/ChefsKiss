@@ -247,9 +247,14 @@ export default function EditAddRecipe({}: EditAddRecipeProps) {
                 {fields.map((field, index) => (
                   <>
                     <Space wrap key={`${currentRecipe?.id}-ingredients-${index}`}>
-                      <Form.Item name={[field.name, "name"]} rules={[{ required: true, message: "חסר שם מרכיב" }]}>
-                        <Input placeholder="שם מרכיב" />
-                      </Form.Item>
+                      <Space>
+                        <Form.Item name={[field.name, "name"]} rules={[{ required: true, message: "חסר שם מרכיב" }]}>
+                          <Input placeholder="שם מרכיב" />
+                        </Form.Item>
+                        <Form.Item name={[field.name, "name"]} rules={[{ required: true, message: "חסר שם מרכיב" }]}>
+                          <Input placeholder="שם מרכיב" />
+                        </Form.Item>
+                      </Space>
                       <Space>
                         <Form.Item name={[field.name, "unit"]} rules={[{ required: true, message: "חסר יחידות מידה" }]}>
                           <Select options={Object.entries(unitOptions).map(([value, label]) => ({ label, value }))} />

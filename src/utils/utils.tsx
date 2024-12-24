@@ -50,7 +50,7 @@ export async function uploadImageToBB(imageData: string | ArrayBuffer | null) {
   const formData = new FormData();
   formData.append("image", blob);
 
-  const response = await fetch(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE__IMG_BB_API_KEY}`, {
+  const response = await fetch(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMG_BB_API_KEY}`, {
     method: "POST",
     body: formData,
   });
