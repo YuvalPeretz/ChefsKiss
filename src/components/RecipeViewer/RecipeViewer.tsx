@@ -1,9 +1,10 @@
 import { ClockCircleOutlined } from "@ant-design/icons";
-import { Flex, List, Modal, Typography } from "antd";
+import { Descriptions, Image, List, Modal, Space, Typography } from "antd";
 import { useAtom } from "jotai";
 import { FaUtensils } from "react-icons/fa";
 import { currentRecipeAtom, isModalVisibleAtom, isViewModalVisibleAtom, currentStepAtom } from "../../atom";
 import { unitOptions } from "../../utils/utils";
+import OverflowTags from "../OverflowTags/OverflowTags";
 
 type RecipeViewerProps = {};
 
@@ -24,35 +25,63 @@ export default function RecipeViewer({}: RecipeViewerProps) {
 
   return (
     <Modal
-      title={currentRecipe?.name || "פרטי מתכון"}
+      title={
+        <Space>
+          <Title style={{ margin: 0 }} level={3}>
+            {currentRecipe?.name || "פרטי מתכון"}
+          </Title>
+          <Image src={currentRecipe?.pictureUrl} style={{ borderRadius: "100%", width: 50, height: 50 }} />
+        </Space>
+      }
       open={isViewModalVisible}
       onCancel={handleCancel}
       footer={null}
       width="100%"
       style={{ maxWidth: 800 }}
     >
+      <Descriptions
+        column={1}
+        //@ts-ignore
+        items={[
+          {
+            children: <OverflowTags tags={currentRecipe?.tags || []} />,
+          },
+          currentRecipe?.prepTime
+            ? {
+                label: (
+                  <Text strong>
+                    <ClockCircleOutlined /> הכנה דקות
+                  </Text>
+                ),
+                children: currentRecipe?.prepTime + " דקות",
+              }
+            : null,
+          currentRecipe?.cookTime
+            ? {
+                label: (
+                  <Text strong>
+                    <ClockCircleOutlined /> זמן בישול
+                  </Text>
+                ),
+                children: currentRecipe?.cookTime + " דקות",
+              }
+            : null,
+          currentRecipe?.servings
+            ? {
+                label: (
+                  <Text strong>
+                    <FaUtensils /> מס' מנות
+                  </Text>
+                ),
+                children: currentRecipe?.servings,
+              }
+            : null,
+        ].filter(Boolean)}
+      />
       {currentRecipe && (
-        <div>
-          {currentRecipe.pictureUrl && <img src={currentRecipe.pictureUrl} alt={currentRecipe.name} />}
-          <Flex vertical>
-            {currentRecipe.prepTime && (
-              <Text>
-                <ClockCircleOutlined /> זמן הכנה: {currentRecipe.prepTime} דקות
-              </Text>
-            )}
-            {currentRecipe.cookTime && (
-              <Text>
-                <ClockCircleOutlined /> זמן בישול: {currentRecipe.cookTime} דקות
-              </Text>
-            )}
-            {currentRecipe.servings && (
-              <Text>
-                <FaUtensils /> מס' מנות: {currentRecipe.servings}
-              </Text>
-            )}
-          </Flex>
-          <Title level={4}>מרכיבים 🛒</Title>
+        <>
           <List
+            header={<Title level={4}>מרכיבים 🛒</Title>}
             dataSource={currentRecipe.ingredients}
             renderItem={({ amount, name, unit }) => (
               <List.Item>
@@ -62,18 +91,20 @@ export default function RecipeViewer({}: RecipeViewerProps) {
               </List.Item>
             )}
           />
-          <Title level={4}>סדר הכנה 📜</Title>
+
           <List
+            header={<Title level={4}>סדר הכנה 📜</Title>}
             dataSource={currentRecipe.steps}
             renderItem={({ description }, i) => (
               <List.Item>
                 <Text>
-                  {i + 1}. <Text>{description}</Text>
+                  <Text strong>{i + 1}. </Text>
+                  <Text>{description}</Text>
                 </Text>
               </List.Item>
             )}
           />
-        </div>
+        </>
       )}
     </Modal>
   );

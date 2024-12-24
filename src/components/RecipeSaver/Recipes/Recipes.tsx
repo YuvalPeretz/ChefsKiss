@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined } from "@ant-design/icons";
-import { Button, Card, Dropdown, Empty, Flex, message, Spin, theme, Typography } from "antd";
+import { Button, Card, Descriptions, Dropdown, Empty, Flex, Image, message, Spin, theme } from "antd";
 import { useAtom } from "jotai";
 import {
   recipesAtom,
@@ -13,10 +13,9 @@ import { Recipe } from "../../../utils/types";
 import Storage from "../../../managers/Storage";
 import useRecipes from "../../../hooks/useRecipes";
 import useResponsive from "../../../hooks/useResponsive";
+import OverflowTags from "../../OverflowTags/OverflowTags";
 
 type RecipesProps = {};
-
-const { Text } = Typography;
 
 export default function Recipes({}: RecipesProps) {
   const { removeRecipe, refreshRecipes } = useRecipes();
@@ -29,7 +28,9 @@ export default function Recipes({}: RecipesProps) {
   const {
     token: { padding },
   } = theme.useToken();
-  const { isWidthBroken: isSmall } = useResponsive({ breakpoint: { width: 610 } });
+  const { isWidthBroken } = useResponsive({ breakpoint: { width: 610 } });
+
+  const isSmall = isWidthBroken;
 
   const handleDelete = (id: string) => {
     removeRecipe(id).then(() => refreshRecipes().then(message.success("מתכון נמחק בהצלחה")));
@@ -49,18 +50,25 @@ export default function Recipes({}: RecipesProps) {
   };
 
   const filteredRecipes = recipes?.filter((recipe) =>
-    searchQuery?.length ? recipe.name && recipe.name.toLowerCase().includes((searchQuery || "").toLowerCase()) : true
+    searchQuery?.length
+      ? recipe.name?.toLowerCase().includes((searchQuery || "").toLowerCase()) ||
+        recipe.tags?.some((tag) => tag.toLowerCase().includes((searchQuery || "").toLowerCase()))
+      : true
   );
 
   return !recipes ? (
     <Spin fullscreen size="large" tip="טוען מתכונים" />
   ) : filteredRecipes?.length ? (
-    <Flex wrap align="start" style={{ padding, width: "100%", height: "100%" }}>
+    <Flex gap={padding} wrap align="start" justify="center" style={{ padding, width: "100%", height: "100%" }}>
       {filteredRecipes?.map((recipe) => (
         <Card
           key={recipe.id}
-          style={{ minWidth: 300, width: isSmall ? "100%" : undefined }}
-          cover={recipe.pictureUrl && <img alt={recipe.name} src={recipe.pictureUrl} />}
+          style={{
+            minWidth: 300,
+            width: isSmall ? "100%" : undefined,
+            height: "100%",
+            maxHeight: 250,
+          }}
           actions={[
             <Button icon={<EyeOutlined />} onClick={() => showViewModal(recipe)}>
               צפה
@@ -78,6 +86,7 @@ export default function Recipes({}: RecipesProps) {
                           icon: <DeleteOutlined />,
                           label: "מחק",
                           onClick: () => handleDelete(recipe.id),
+                          danger: true,
                         },
                       ],
                     }}
@@ -89,24 +98,30 @@ export default function Recipes({}: RecipesProps) {
           ]}
         >
           <Card.Meta
+            avatar={<Image src={recipe.pictureUrl} style={{ borderRadius: "100%", width: 50, height: 50 }} />}
             title={recipe.name}
             description={
               <>
-                <Text>מצרכים: {recipe.ingredients.length}</Text>
-                <br />
-                <Text>צעדים: {recipe.steps.length}</Text>
-                {recipe.prepTime && (
-                  <>
-                    <br />
-                    <Text>זמן הכנה: {recipe.prepTime} דקות</Text>
-                  </>
-                )}
-                {recipe.cookTime && (
-                  <>
-                    <br />
-                    <Text>זמן בישול: {recipe.cookTime} דקות</Text>
-                  </>
-                )}
+                <OverflowTags tags={recipe.tags || []} />
+                <Descriptions
+                  style={{ maxWidth: 300 }}
+                  column={1}
+                  //@ts-ignore
+                  items={[
+                    recipe.ingredients.length
+                      ? { style: { paddingBottom: 0 }, label: "מצרכים", children: recipe.ingredients.length }
+                      : null,
+                    recipe.ingredients.length
+                      ? { style: { paddingBottom: 0 }, label: "צעדים", children: recipe.steps.length }
+                      : null,
+                    recipe.ingredients.length
+                      ? { style: { paddingBottom: 0 }, label: "זמן הכנה", children: `${recipe.prepTime} דקות` }
+                      : null,
+                    recipe.ingredients.length
+                      ? { style: { paddingBottom: 0 }, label: "זמן בישול", children: `${recipe.cookTime} דקות` }
+                      : null,
+                  ].filter(Boolean)}
+                />
               </>
             }
           />

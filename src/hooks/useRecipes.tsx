@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, setDoc } from "firebase/firestore";
 import useDB from "./useDB";
 import { Recipe } from "../utils/types";
 import { message } from "antd";
@@ -40,6 +40,16 @@ export default function useRecipes({}: useRecipesProps = {}) {
     }
   }
 
+  async function updateRecipe(id: string, updatedRecipe: Recipe) {
+    try {
+      const documentRef = doc(db, collectionName, id);
+      await setDoc(documentRef, { data: JSON.stringify(updatedRecipe) }, { merge: true });
+      message.success("המתכון עודכן בהצלחה!");
+    } catch (error) {
+      message.error("עדכון מתכון נכשל: " + error);
+    }
+  }
+
   async function removeRecipe(id: string) {
     try {
       await deleteDoc(doc(db, collectionName, id));
@@ -57,5 +67,6 @@ export default function useRecipes({}: useRecipesProps = {}) {
     addRecipe,
     removeRecipe,
     refreshRecipes,
+    updateRecipe,
   };
 }
