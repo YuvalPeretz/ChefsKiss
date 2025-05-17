@@ -153,7 +153,7 @@ export default function useResponsive<BPC extends BreakpointCategories = typeof 
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Utility function for logging when debug is enabled
-  const debuggingLog = (...args: any[]) => {
+  const debuggingLog = (...args: unknown[]) => {
     if (debug) {
       console.log("[useResponsive]", ...args);
     }
@@ -165,6 +165,7 @@ export default function useResponsive<BPC extends BreakpointCategories = typeof 
 
     for (const [category, { height: conditionHeight, width: conditionWidth }] of Object.entries(
       breakpointCategories
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     ).sort(([_, { height: heightA, width: widthA }], [__, { height: heightB, width: widthB }]) => {
       heightA = heightA === undefined ? 0 : heightA;
       widthA = widthA === undefined ? 0 : widthA;
@@ -345,7 +346,7 @@ export default function useResponsive<BPC extends BreakpointCategories = typeof 
       // Handle Element resize using ResizeObserver
       if (mode === "observer" || mode === "debounce") {
         if (resizeObserverRef.current === null) {
-          resizeObserverRef.current = new ResizeObserver(mode === "debounce" ? () => {} : handleResizeObserver);
+          resizeObserverRef.current = new ResizeObserver(mode === "debounce" ? () => { } : handleResizeObserver);
         }
 
         if (mode === "debounce") {
@@ -378,7 +379,7 @@ export default function useResponsive<BPC extends BreakpointCategories = typeof 
       disconnect();
       debuggingLog("Cleaned up observers and event listeners.");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [listener, breakpoint?.width, breakpoint?.height, mode, debounceMs, stopAfterBreak, breakpointCategories]);
 
   return state;

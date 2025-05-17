@@ -1,5 +1,5 @@
 enum StorageKeys {
-  AUTHOR = "Author",
+  AUTHOR = 'Author',
 }
 
 export default class Storage {
@@ -9,8 +9,8 @@ export default class Storage {
 
   static getIsAuthor() {
     try {
-      return JSON.parse(localStorage.getItem(StorageKeys.AUTHOR) || "") || false;
-    } catch (error) {
+      return JSON.parse(localStorage.getItem(StorageKeys.AUTHOR) || '') || false;
+    } catch {
       return false;
     }
   }

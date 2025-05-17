@@ -10,7 +10,6 @@ import {
   currentStepAtom,
 } from "../../../atom";
 import { Recipe } from "../../../utils/types";
-import Storage from "../../../managers/Storage";
 import useRecipes from "../../../hooks/useRecipes";
 import useResponsive from "../../../hooks/useResponsive";
 import OverflowTags from "../../OverflowTags/OverflowTags";
@@ -59,13 +58,12 @@ export default function Recipes({}: RecipesProps) {
   return !recipes ? (
     <Spin fullscreen size="large" tip="טוען מתכונים" />
   ) : filteredRecipes?.length ? (
-    <Flex gap={padding} wrap align="start" justify="center" style={{ padding, width: "100%", height: "100%" }}>
+    <Flex gap={padding} wrap align="start" justify="center" style={{ padding, width: "100%" }}>
       {filteredRecipes?.map((recipe) => (
         <Card
           key={recipe.id}
           style={{
-            minWidth: 300,
-            width: isSmall ? "100%" : undefined,
+            width: isSmall ? "100%" : 300,
             height: "100%",
             maxHeight: 250,
           }}
@@ -73,32 +71,32 @@ export default function Recipes({}: RecipesProps) {
             <Button icon={<EyeOutlined />} onClick={() => showViewModal(recipe)}>
               צפה
             </Button>,
-            ...(Storage.getIsAuthor()
-              ? [
-                  <Button icon={<EditOutlined />} onClick={() => showEditModal(recipe)}>
-                    ערוך
-                  </Button>,
-                  <Dropdown
-                    menu={{
-                      items: [
-                        {
-                          key: "delete",
-                          icon: <DeleteOutlined />,
-                          label: "מחק",
-                          onClick: () => handleDelete(recipe.id),
-                          danger: true,
-                        },
-                      ],
-                    }}
-                  >
-                    <Button icon={<MoreOutlined />} />
-                  </Dropdown>,
-                ]
-              : []),
+            <Button icon={<EditOutlined />} onClick={() => showEditModal(recipe)}>
+              ערוך
+            </Button>,
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: "delete",
+                    icon: <DeleteOutlined />,
+                    label: "מחק",
+                    onClick: () => handleDelete(recipe.id),
+                    danger: true,
+                  },
+                ],
+              }}
+            >
+              <Button icon={<MoreOutlined />} />
+            </Dropdown>,
           ]}
         >
           <Card.Meta
-            avatar={<Image src={recipe.pictureUrl} style={{ borderRadius: "100%", width: 50, height: 50 }} />}
+            avatar={
+              recipe.pictureUrl && (
+                <Image src={recipe.pictureUrl} style={{ borderRadius: "100%", width: 50, height: 50 }} />
+              )
+            }
             title={recipe.name}
             description={
               <>
@@ -111,13 +109,13 @@ export default function Recipes({}: RecipesProps) {
                     recipe.ingredients.length
                       ? { style: { paddingBottom: 0 }, label: "מצרכים", children: recipe.ingredients.length }
                       : null,
-                    recipe.ingredients.length
+                    recipe.steps.length
                       ? { style: { paddingBottom: 0 }, label: "צעדים", children: recipe.steps.length }
                       : null,
-                    recipe.ingredients.length
+                    recipe.prepTime
                       ? { style: { paddingBottom: 0 }, label: "זמן הכנה", children: `${recipe.prepTime} דקות` }
                       : null,
-                    recipe.ingredients.length
+                    recipe.cookTime
                       ? { style: { paddingBottom: 0 }, label: "זמן בישול", children: `${recipe.cookTime} דקות` }
                       : null,
                   ].filter(Boolean)}

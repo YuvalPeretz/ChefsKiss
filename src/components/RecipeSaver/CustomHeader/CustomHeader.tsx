@@ -4,7 +4,6 @@ import { useAtom } from "jotai";
 import { searchQueryAtom, isModalVisibleAtom, currentRecipeAtom, currentStepAtom } from "../../../atom";
 import { FaSearch } from "react-icons/fa";
 import useResponsive from "../../../hooks/useResponsive";
-import Storage from "../../../managers/Storage";
 // import { useMemo } from "react";
 
 type CustomHeaderProps = {};
@@ -91,11 +90,9 @@ export default function CustomHeader({}: CustomHeaderProps) {
           }}
         /> */}
         <Input prefix={<FaSearch />} placeholder="חיפוש" onChange={(e) => handleSearch(e.target.value)} />
-        {Storage.getIsAuthor() && (
-          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-            הוסף מתכון
-          </Button>
-        )}
+        <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+          הוסף מתכון
+        </Button>
       </Space>
     </Flex>
   );
