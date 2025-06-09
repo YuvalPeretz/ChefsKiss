@@ -1,4 +1,4 @@
-import { Recipe } from '../utils/types';
+import RecipeEndpoints from './Recipe/Recipe';
 
 export type SendMessageType = { body?: unknown; endpoint: string; props?: RequestInit };
 
@@ -14,10 +14,7 @@ async function sendMessage({ body, endpoint, props }: SendMessageType) {
 }
 
 const Server = {
-  Recipe: {
-    AI: (prompt: string): Promise<{ recipe: Recipe }> =>
-      sendMessage({ body: { prompt }, endpoint: 'recipe/ai' }),
-  },
+  Recipe: RecipeEndpoints(sendMessage),
 };
 
 export default Server;

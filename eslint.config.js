@@ -24,7 +24,7 @@ export default tseslint.config(
       'no-empty-pattern': 'off',
       'react-hooks/exhaustive-deps': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   }
 );

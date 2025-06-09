@@ -1,20 +1,27 @@
-import { OpenAIOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Flex, Input, message, Modal, Space, theme, Typography } from "antd";
-import { useAtom } from "jotai";
-import { searchQueryAtom, isModalVisibleAtom, currentRecipeAtom, currentStepAtom } from "../../../atom";
-import { FaSearch } from "react-icons/fa";
-import useResponsive from "../../../hooks/useResponsive";
-import { useState } from "react";
-import { extractRecipeFromText, validateRecipe } from "../../../utils/utils";
-import Server from "../../../server/server";
+import { OpenAIOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Flex, Input, message, Modal, Space, theme, Typography } from 'antd';
+import { useAtom } from 'jotai';
+import {
+  searchQueryAtom,
+  isModalVisibleAtom,
+  currentRecipeAtom,
+  currentStepAtom,
+} from '../../../atom';
+import { FaSearch } from 'react-icons/fa';
+import useResponsive from '../../../hooks/useResponsive';
+import { useState } from 'react';
+import { extractRecipeFromText, validateRecipe } from '../../../utils/utils';
+import Server from '../../../server/server';
 // import { useMemo } from "react";
 
 type CustomHeaderProps = {};
 
 const { Title } = Typography;
 
-export default function CustomHeader({ }: CustomHeaderProps) {
-  const { Recipe: { AI } } = Server;
+export default function CustomHeader({}: CustomHeaderProps) {
+  const {
+    Recipe: { AI },
+  } = Server;
   // const [recipes] = useAtom(recipesAtom);
   const setSearchQuery = useAtom(searchQueryAtom)[1];
   const setIsModalVisible = useAtom(isModalVisibleAtom)[1];
@@ -25,8 +32,8 @@ export default function CustomHeader({ }: CustomHeaderProps) {
   } = theme.useToken();
   const { isWidthBroken: isSmall } = useResponsive({ breakpoint: { width: 610 } });
   const [aiOpen, setAIOpen] = useState(false);
-  const [aiLoading, setAILoading] = useState(false)
-  const [recipeText, setRecipeText] = useState("")
+  const [aiLoading, setAILoading] = useState(false);
+  const [recipeText, setRecipeText] = useState('');
   // const cascaderOptions = useMemo(() => {
   //   const optionsMap = new Map();
 
@@ -74,23 +81,22 @@ export default function CustomHeader({ }: CustomHeaderProps) {
 
   async function handleAISubmit() {
     if (!recipeText.trim()) {
-      message.warning("אנא הזן טקסט של מתכון.");
+      message.warning('אנא הזן טקסט של מתכון.');
       return;
     }
 
     setAILoading(true);
     try {
-      const data = (await AI(recipeText)).recipe;
-      // const data = await extractRecipeFromText(recipeText)
+      // const data = (await AI(recipeText)).recipe;
+      const data = await extractRecipeFromText(recipeText);
       setCurrentRecipe(validateRecipe(data));
       setCurrentStep(0);
       setIsModalVisible(true);
       setAIOpen(false);
-      setRecipeText("");
+      setRecipeText('');
     } catch {
-      message.error("אירעה שגיאה בעת עיבוד המתכון.");
-    }
-    finally {
+      message.error('אירעה שגיאה בעת עיבוד המתכון.');
+    } finally {
       setAILoading(false);
     }
   }
@@ -98,7 +104,7 @@ export default function CustomHeader({ }: CustomHeaderProps) {
   return (
     <Flex
       gap={padding}
-      justify={isSmall ? "center" : "space-between"}
+      justify={isSmall ? 'center' : 'space-between'}
       align="center"
       style={{ padding: paddingXL, backgroundColor: magenta2 }}
       wrap={isSmall}
@@ -109,11 +115,20 @@ export default function CustomHeader({ }: CustomHeaderProps) {
         </Space>
       </Title>
       <Space>
-        <Input prefix={<FaSearch />} placeholder="חיפוש" onChange={(e) => handleSearch(e.target.value)} />
+        <Input
+          prefix={<FaSearch />}
+          placeholder="חיפוש"
+          onChange={e => handleSearch(e.target.value)}
+        />
         <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
           הוסף מתכון
         </Button>
-        <Button variant="filled" color="pink" icon={<OpenAIOutlined style={{ fontSize: 18 }} />} onClick={() => setAIOpen(true)} />
+        <Button
+          variant="filled"
+          color="pink"
+          icon={<OpenAIOutlined style={{ fontSize: 18 }} />}
+          onClick={() => setAIOpen(true)}
+        />
       </Space>
 
       <Modal
@@ -128,7 +143,7 @@ export default function CustomHeader({ }: CustomHeaderProps) {
         <Input.TextArea
           maxLength={3000}
           value={recipeText}
-          onChange={(e) => setRecipeText(e.target.value)}
+          onChange={e => setRecipeText(e.target.value)}
           placeholder="הדבק כאן את טקסט המתכון..."
         />
       </Modal>
