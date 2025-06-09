@@ -1,4 +1,4 @@
-import { OpenAIOutlined, PlusOutlined } from '@ant-design/icons';
+import { LogoutOutlined, OpenAIOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Flex, Input, message, Modal, Space, theme, Typography } from 'antd';
 import { useAtom } from 'jotai';
 import {
@@ -11,18 +11,14 @@ import { FaSearch } from 'react-icons/fa';
 import useResponsive from '../../../hooks/useResponsive';
 import { useState } from 'react';
 import { extractRecipeFromText, validateRecipe } from '../../../utils/utils';
-import Server from '../../../server/server';
-// import { useMemo } from "react";
+import useAuth from '../../../hooks/useAuth';
 
 type CustomHeaderProps = {};
 
 const { Title } = Typography;
 
 export default function CustomHeader({}: CustomHeaderProps) {
-  const {
-    Recipe: { AI },
-  } = Server;
-  // const [recipes] = useAtom(recipesAtom);
+  const { firebaseLogout } = useAuth();
   const setSearchQuery = useAtom(searchQueryAtom)[1];
   const setIsModalVisible = useAtom(isModalVisibleAtom)[1];
   const setCurrentRecipe = useAtom(currentRecipeAtom)[1];
@@ -129,6 +125,9 @@ export default function CustomHeader({}: CustomHeaderProps) {
           icon={<OpenAIOutlined style={{ fontSize: 18 }} />}
           onClick={() => setAIOpen(true)}
         />
+        <Button icon={<LogoutOutlined />} onClick={firebaseLogout}>
+          התנתק
+        </Button>
       </Space>
 
       <Modal
