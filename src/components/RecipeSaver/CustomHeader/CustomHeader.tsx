@@ -1,16 +1,20 @@
-import { PlusOutlined } from "@ant-design/icons";
-import { Button, Flex, Input, Space, theme, Typography } from "antd";
+import { OpenAIOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Flex, Input, message, Modal, Space, theme, Typography } from "antd";
 import { useAtom } from "jotai";
 import { searchQueryAtom, isModalVisibleAtom, currentRecipeAtom, currentStepAtom } from "../../../atom";
 import { FaSearch } from "react-icons/fa";
 import useResponsive from "../../../hooks/useResponsive";
+import { useState } from "react";
+import { extractRecipeFromText, validateRecipe } from "../../../utils/utils";
+import Server from "../../../server/server";
 // import { useMemo } from "react";
 
 type CustomHeaderProps = {};
 
 const { Title } = Typography;
 
-export default function CustomHeader({}: CustomHeaderProps) {
+export default function CustomHeader({ }: CustomHeaderProps) {
+  const { Recipe: { AI } } = Server;
   // const [recipes] = useAtom(recipesAtom);
   const setSearchQuery = useAtom(searchQueryAtom)[1];
   const setIsModalVisible = useAtom(isModalVisibleAtom)[1];
@@ -20,7 +24,9 @@ export default function CustomHeader({}: CustomHeaderProps) {
     token: { paddingXL, magenta2, magenta6, padding },
   } = theme.useToken();
   const { isWidthBroken: isSmall } = useResponsive({ breakpoint: { width: 610 } });
-
+  const [aiOpen, setAIOpen] = useState(false);
+  const [aiLoading, setAILoading] = useState(false)
+  const [recipeText, setRecipeText] = useState("")
   // const cascaderOptions = useMemo(() => {
   //   const optionsMap = new Map();
 
@@ -66,6 +72,29 @@ export default function CustomHeader({}: CustomHeaderProps) {
     setCurrentStep(0);
   };
 
+  async function handleAISubmit() {
+    if (!recipeText.trim()) {
+      message.warning("אנא הזן טקסט של מתכון.");
+      return;
+    }
+
+    setAILoading(true);
+    try {
+      const data = (await AI(recipeText)).recipe;
+      // const data = await extractRecipeFromText(recipeText)
+      setCurrentRecipe(validateRecipe(data));
+      setCurrentStep(0);
+      setIsModalVisible(true);
+      setAIOpen(false);
+      setRecipeText("");
+    } catch {
+      message.error("אירעה שגיאה בעת עיבוד המתכון.");
+    }
+    finally {
+      setAILoading(false);
+    }
+  }
+
   return (
     <Flex
       gap={padding}
@@ -80,20 +109,29 @@ export default function CustomHeader({}: CustomHeaderProps) {
         </Space>
       </Title>
       <Space>
-        {/* <Cascader
-          prefix={<FaSearch />}
-          placeholder="חיפוש"
-          options={cascaderOptions}
-          showSearch={{
-            filter: (inputValue, path) =>
-              path.some((option) => option.label.toLowerCase().includes(inputValue.toLowerCase())),
-          }}
-        /> */}
         <Input prefix={<FaSearch />} placeholder="חיפוש" onChange={(e) => handleSearch(e.target.value)} />
         <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
           הוסף מתכון
         </Button>
+        <Button variant="filled" color="pink" icon={<OpenAIOutlined style={{ fontSize: 18 }} />} onClick={() => setAIOpen(true)} />
       </Space>
+
+      <Modal
+        title="מתכון עם AI"
+        open={aiOpen}
+        onCancel={() => setAIOpen(false)}
+        onOk={handleAISubmit}
+        confirmLoading={aiLoading}
+        okText="שלח ל-AI"
+        cancelText="ביטול"
+      >
+        <Input.TextArea
+          maxLength={3000}
+          value={recipeText}
+          onChange={(e) => setRecipeText(e.target.value)}
+          placeholder="הדבק כאן את טקסט המתכון..."
+        />
+      </Modal>
     </Flex>
   );
 }
